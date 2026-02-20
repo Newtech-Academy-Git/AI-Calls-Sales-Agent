@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Call – NewTech</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f5f7fa; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 16px; }
+    .card { background: white; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.10); padding: 28px 32px; width: 100%; max-width: 420px; }
+    .header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 16px; }
+    .logo { width: 40px; height: 40px; background: linear-gradient(135deg, #6C3DE0, #9B6DFF); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+    .header-text h2 { font-size: 15px; color: #1a1a2e; font-weight: 700; }
+    .header-text p { font-size: 12px; color: #888; }
+    .lead-info { background: #f8f9fc; border-radius: 10px; padding: 14px 16px; margin-bottom: 20px; }
+    .lead-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; font-size: 13px; }
+    .lead-label { color: #888; }
+    .lead-value { color: #1a1a2e; font-weight: 600; }
+    .lead-value.phone { direction: ltr; unicode-bidi: embed; }
+    .campaign-badge { display: inline-block; background: #EDE9FF; color: #6C3DE0; border-radius: 20px; padding: 2px 10px; font-size: 11px; font-weight: 600; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .btn-call { width: 100%; padding: 14px 20px; background: linear-gradient(135deg, #6C3DE0, #9B6DFF); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.2s; }
+    .btn-call:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(108,61,224,0.4); }
+    .btn-call:disabled { opacity: 0.6; cursor: not-allowed; }
+    .btn-call.calling { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+    .btn-call.active { background: linear-gradient(135deg, #10b981, #34d399); }
+    .btn-call.ended { background: linear-gradient(135deg, #6b7280, #9ca3af); }
+    .status-box { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 13px; display: none; }
+    .status-box.show { display: block; }
+    .status-box.info { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }
+    .status-box.success { background: #F0FDF4; color: #166534; border: 1px solid #BBF7D0; }
+    .status-box.error { background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
+    .status-box.warning { background: #FFFBEB; color: #92400E; border: 1px solid #FDE68A; }
+    .status-header { font-weight: 700; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+    .timer { font-family: monospace; font-size: 18px; text-align: center; margin: 8px 0; color: #10b981; font-weight: bold; }
+    .outcome-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+    .outcome-item { background: #f8f9fc; border-radius: 8px; padding: 8px 10px; font-size: 12px; }
+    .outcome-item .ol { color: #888; }
+    .outcome-item .ov { color: #1a1a2e; font-weight: 600; }
+    .pulse { animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+    .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.4); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-overlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.8); align-items: center; justify-content: center; font-size: 14px; color: #6C3DE0; font-weight: 600; flex-direction: column; gap: 12px; z-index: 100; }
+    .loading-overlay.show { display: flex; }
+    .big-spinner { width: 36px; height: 36px; border: 3px solid #EDE9FF; border-top-color: #6C3DE0; border-radius: 50%; animation: spin 0.8s linear infinite; }
+  </style>
+</head>
+<body>
+<div class="loading-overlay" id="loadingOverlay"><div class="big-spinner"></div><span>טוען פרטי ליד...</span></div>
+<div class="card">
+  <div class="header"><div class="logo">🤖</div><div class="header-text"><h2>חיוג AI – NewTech Academy</h2><p>שיחת מכירה אוטומטית בערבית</p></div></div>
+  <div class="lead-info" id="leadInfo">
+    <div class="lead-row"><span class="lead-label">שם:</span><span class="lead-value" id="leadName">טוען...</span></div>
+    <div class="lead-row"><span class="lead-label">טלפון:</span><span class="lead-value phone" id="leadPhone">טוען...</span></div>
+    <div class="lead-row"><span class="lead-label">קמפיין:</span><span class="lead-value"><span class="campaign-badge" id="leadCampaign">—</span></span></div>
+    <div class="lead-row"><span class="lead-label">סטטוס:</span><span class="lead-value" id="leadStatus">—</span></div>
+  </div>
+  <button class="btn-call" id="callBtn" onclick="handleCallButton()" disabled><span id="callBtnIcon">📞</span><span id="callBtnText">טוען...</span></button>
+  <div class="status-box" id="statusBox"><div class="status-header"><span id="statusIcon">ℹ️</span><span id="statusTitle"></span></div><div id="statusMsg"></div><div class="timer" id="callTimer" style="display:none"></div><div class="outcome-grid" id="outcomeGrid" style="display:none"></div></div>
+</div>
+<script>
+const BACKEND_URL = window.location.origin;
+let currentCallId = null, timerInterval = null, callStartTime = null, pollInterval = null, leadData = {};
+
+function getRecordId() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('recordId')) return params.get('recordId');
+  const pathMatch = window.location.pathname.match(/\/record\/1\/([a-f0-9-]+)/i);
+  if (pathMatch) return pathMatch[1];
+  try { const parentUrl = window.parent.location.href; const parentMatch = parentUrl.match(/\/record\/1\/([a-f0-9-]+)/i); if (parentMatch) return parentMatch[1]; } catch(e) {}
+  return null;
+}
+
+async function init() {
+  const recordId = getRecordId();
+  if (!recordId) { showStatus('error','❌','שגיאה','לא נמצא מזהה ליד.'); return; }
+  document.getElementById('loadingOverlay').classList.add('show');
+  try {
+    const res = await fetch(BACKEND_URL + '/api/lead/' + recordId);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    leadData = await res.json();
+    document.getElementById('leadName').textContent = leadData.name || 'לא ידוע';
+    document.getElementById('leadPhone').textContent = formatPhone(leadData.phone || '');
+    document.getElementById('leadCampaign').textContent = leadData.campaign || '—';
+    document.getElementById('leadStatus').textContent = leadData.status || '—';
+    const btn = document.getElementById('callBtn');
+    if (leadData.phone) { btn.disabled = false; document.getElementById('callBtnIcon').textContent = '📞'; document.getElementById('callBtnText').textContent = 'חייג עם AI → ' + formatPhone(leadData.phone); }
+    else { showStatus('error','❌','אין טלפון','לליד זה אין מספר טלפון.'); document.getElementById('callBtnText').textContent = 'אין טלפון'; }
+  } catch(err) { showStatus('error','❌','שגיאת טעינה','לא ניתן לטעון פרטי ליד: ' + err.message); document.getElementById('callBtnText').textContent = 'שגיאה בטעינה'; }
+  finally { document.getElementById('loadingOverlay').classList.remove('show'); }
+}
+
+async function handleCallButton() { if (currentCallId) return; await startCall(); }
+
+async function startCall() {
+  const btn = document.getElementById('callBtn');
+  btn.disabled = true; btn.classList.add('calling');
+  document.getElementById('callBtnIcon').innerHTML = '<span class="spinner"></span>';
+  document.getElementById('callBtnText').textContent = 'מתחבר...';
+  showStatus('info','⏳','מאתחל שיחה','שולח בקשה לסוכן AI...');
+  const recordId = getRecordId();
+  try {
+    const res = await fetch(BACKEND_URL + '/api/call', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ recordId, phone: leadData.phone, name: leadData.name, campaign: leadData.campaign, status: leadData.status, city: leadData.city, email: leadData.email }) });
+    if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.message || 'HTTP ' + res.status); }
+    const data = await res.json();
+    currentCallId = data.callId;
+    btn.classList.remove('calling'); btn.classList.add('active');
+    document.getElementById('callBtnIcon').textContent = '🔴';
+    document.getElementById('callBtnText').textContent = 'שיחה פעילה...';
+    callStartTime = Date.now(); startTimer();
+    showStatus('success','📞','מחייג...','מחייג ל-' + formatPhone(leadData.phone));
+    document.getElementById('callTimer').style.display = 'block';
+    pollInterval = setInterval(() => pollCallStatus(currentCallId), 5000);
+  } catch(err) { btn.disabled = false; btn.classList.remove('calling'); document.getElementById('callBtnIcon').textContent = '📞'; document.getElementById('callBtnText').textContent = 'חייג עם AI → ' + formatPhone(leadData.phone); showStatus('error','❌','שגיאה','לא ניתן להתחיל שיחה: ' + err.message); }
+}
+
+async function pollCallStatus(callId) {
+  try { const res = await fetch(BACKEND_URL + '/api/call-status/' + callId); if (!res.ok) return; const data = await res.json();
+    if (data.status === 'ended' || data.status === 'failed') onCallEnded(data);
+    else if (data.status === 'ringing') showStatus('info','🔔','מצלצל...','מחכה שהליד יענה');
+    else if (data.status === 'in-progress') { showStatus('success','🎙️','שיחה פעילה','הסוכן AI מנהל שיחה'); }
+  } catch(e) {}
+}
+
+function onCallEnded(data) {
+  clearInterval(pollInterval); stopTimer(); currentCallId = null;
+  const btn = document.getElementById('callBtn');
+  btn.classList.remove('active','calling'); btn.classList.add('ended'); btn.disabled = false;
+  document.getElementById('callBtnIcon').textContent = '🔁';
+  document.getElementById('callBtnText').textContent = 'חייג שוב';
+  setTimeout(() => { btn.classList.remove('ended'); document.getElementById('callBtnIcon').textContent = '📞'; document.getElementById('callBtnText').textContent = 'חייג עם AI → ' + formatPhone(leadData.phone); }, 5000);
+  const outcome = data.outcome || 'UNKNOWN', summary = data.summary || '', interest = data.interestLevel || '—', objection = data.mainObjection || '—', bg = data.customerBackground || '—';
+  const duration = data.durationSeconds ? formatDuration(data.durationSeconds) : '—';
+  const labels = { WHATSAPP_SENT_INTERESTED:'✅ מעוניין – WhatsApp נשלח', CALLBACK_REQUESTED:'🔄 ביקש חזרה', NOT_INTERESTED:'❌ לא מעוניין', NO_ANSWER:'📵 לא ענה', WRONG_NUMBER:'🚫 מספר שגוי', ENROLLED:'🎉 נרשם!', FINANCIAL_BLOCKER:'💳 חסם BDI/אשראי', UNKNOWN:'❓ לא ידוע' };
+  const typeClass = ['ENROLLED','WHATSAPP_SENT_INTERESTED'].includes(outcome) ? 'success' : outcome === 'NOT_INTERESTED' ? 'warning' : 'info';
+  showStatus(typeClass,'📋','השיחה הסתיימה', summary || labels[outcome]);
+  document.getElementById('callTimer').style.display = 'none';
+  const grid = document.getElementById('outcomeGrid'); grid.style.display = 'grid';
+  grid.innerHTML = '<div class="outcome-item"><div class="ol">תוצאה</div><div class="ov">' + (labels[outcome]||outcome) + '</div></div><div class="outcome-item"><div class="ol">עניין</div><div class="ov">' + translateInterest(interest) + '</div></div><div class="outcome-item"><div class="ol">משך</div><div class="ov">' + duration + '</div></div><div class="outcome-item"><div class="ol">התנגדות</div><div class="ov">' + objection + '</div></div>';
+}
+
+function startTimer() { timerInterval = setInterval(() => { const elapsed = Math.floor((Date.now() - callStartTime) / 1000); document.getElementById('callTimer').textContent = formatDuration(elapsed); }, 1000); }
+function stopTimer() { clearInterval(timerInterval); }
+function formatPhone(p) { if (!p) return '—'; const c = p.replace(/\D/g,''); if (c.startsWith('972')) return '+' + c; if (c.startsWith('0')) return '+972' + c.slice(1); return p; }
+function formatDuration(s) { return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); }
+function translateInterest(l) { return {high:'גבוה',medium:'בינוני',low:'נמוך',none:'אין'}[l] || l; }
+function showStatus(type, icon, title, msg) { const box = document.getElementById('statusBox'); box.className = 'status-box show ' + type; document.getElementById('statusIcon').textContent = icon; document.getElementById('statusTitle').textContent = title; document.getElementById('statusMsg').textContent = msg; }
+window.addEventListener('load', init);
+</script>
+</body>
+</html>
