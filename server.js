@@ -1,14 +1,14 @@
 /**
- * NewTech Academy – AI Sales Call Backend
+ * NewTech Academy â AI Sales Call Backend
  * ==========================================
- * Connects: Fireberry CRM ↔ Vapi.ai ↔ Twilio
+ * Connects: Fireberry CRM â Vapi.ai â Twilio
  *
  * Endpoints:
- *   GET  /                        → serves ai_call_button.html
- *   GET  /api/lead/:recordId      → fetch lead from Fireberry API
- *   POST /api/call                → initiate outbound AI call via Vapi
- *   GET  /api/call-status/:callId → get live call status
- *   POST /webhook/vapi            → receives Vapi events (end-of-call, etc.)
+ *   GET  /                        â serves ai_call_button.html
+ *   GET  /api/lead/:recordId      â fetch lead from Fireberry API
+ *   POST /api/call                â initiate outbound AI call via Vapi
+ *   GET  /api/call-status/:callId â get live call status
+ *   POST /webhook/vapi            â receives Vapi events (end-of-call, etc.)
  */
 
 require('dotenv').config();
@@ -22,7 +22,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
-// CORS – allow Fireberry to call this server
+// CORS â allow Fireberry to call this server
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin',  '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
@@ -85,7 +85,7 @@ app.post('/api/call', async (req, res) => {
         assistantId: CONFIG.VAPI_ASSISTANT_ID,
         phoneNumberId: CONFIG.VAPI_PHONE_NUMBER_ID,
         assistantOverrides,
-        customer: { number: e164Phone, name: name || 'ليد' },
+        customer: { number: e164Phone, name: name || 'ÙÙØ¯' },
         metadata: { recordId, name, phone: e164Phone, campaign, adset, status, statusDetail, city, source, company, whatsappUrl }
       })
     });
@@ -157,32 +157,32 @@ function handleStatusUpdate(msg) {
   if (!callId) return;
   const existing = callStore.get(callId) || {};
   callStore.set(callId, { ...existing, status: msg.status });
-  console.log(`[webhook] Status update: ${callId} → ${msg.status}`);
+  console.log(`[webhook] Status update: ${callId} â ${msg.status}`);
 }
 
 async function updateFireberry(recordId, data) {
   const { outcome, interestLevel, summary, duration, hasBDI, mainObjection, whatsappSent } = data;
   const statusMap = {
-    ENROLLED: { status: 'נרשם', statusDetail: 'עבר תשלום ראשון בהצלחה' },
-    WHATSAPP_SENT_INTERESTED: { status: 'הועבר לג\'ונגל', statusDetail: 'ליד רלוונטי – נשלח WhatsApp' },
-    CALLBACK_REQUESTED: { status: 'הועבר לג\'ונגל', statusDetail: 'ליד רלוונטי – ביקש חזרה' },
-    FINANCIAL_BLOCKER: { status: 'הועבר לג\'ונגל', statusDetail: 'בעיית BDI/אשראי – דרוש נציג אנושי' },
-    NOT_INTERESTED: { status: 'לא רלוונטי', statusDetail: 'לא מעוניין' },
-    NO_ANSWER: { status: 'טרם טופל', statusDetail: 'לא ענה – ממתין לחיוג חוזר' },
-    WRONG_NUMBER: { status: 'לא רלוונטי', statusDetail: 'ליד כפול / מספר שגוי' },
+    ENROLLED: { status: '× ×¨×©×', statusDetail: '×¢××¨ ×ª×©××× ×¨××©×× ×××¦×××' },
+    WHATSAPP_SENT_INTERESTED: { status: '×××¢××¨ ××\'×× ××', statusDetail: '××× ×¨×××× ×× â × ×©×× WhatsApp' },
+    CALLBACK_REQUESTED: { status: '×××¢××¨ ××\'×× ××', statusDetail: '××× ×¨×××× ×× â ×××§×© ×××¨×' },
+    FINANCIAL_BLOCKER: { status: '×××¢××¨ ××\'×× ××', statusDetail: '××¢×××ª BDI/××©×¨×× â ××¨××© × ×¦×× ×× ××©×' },
+    NOT_INTERESTED: { status: '×× ×¨×××× ××', statusDetail: '×× ××¢×× ×××' },
+    NO_ANSWER: { status: '××¨× ×××¤×', statusDetail: '×× ×¢× × â ×××ª×× ××××× ××××¨' },
+    WRONG_NUMBER: { status: '×× ×¨×××× ××', statusDetail: '××× ××¤×× / ××¡×¤×¨ ×©×××' },
   };
   const mapped = statusMap[outcome] || { statusDetail: `AI call: ${outcome}` };
   const durationMin = duration ? Math.floor(duration / 60) : 0;
   const durationSec = duration ? duration % 60 : 0;
   const noteLines = [
-    `שיחת AI – ${new Date().toLocaleDateString('he-IL')}`,
-    `משך: ${durationMin}:${String(durationSec).padStart(2,'0')} דקות`,
-    `תוצאה: ${outcome}`,
-    `רמת עניין: ${interestLevel || 'לא ידוע'}`,
-    mainObjection ? `התנגדות עיקרית: ${mainObjection}` : null,
-    hasBDI ? `בעיית BDI/אשראי – נדרש בירור` : null,
-    whatsappSent ? `WhatsApp נשלח` : null,
-    summary ? `\nסיכום:\n${summary}` : null,
+    `×©×××ª AI â ${new Date().toLocaleDateString('he-IL')}`,
+    `××©×: ${durationMin}:${String(durationSec).padStart(2,'0')} ××§××ª`,
+    `×ª××¦××: ${outcome}`,
+    `×¨××ª ×¢× ×××: ${interestLevel || '×× ××××¢'}`,
+    mainObjection ? `××ª× ××××ª ×¢××§×¨××ª: ${mainObjection}` : null,
+    hasBDI ? `××¢×××ª BDI/××©×¨×× â × ××¨×© ×××¨××¨` : null,
+    whatsappSent ? `WhatsApp × ×©××` : null,
+    summary ? `\n×¡××××:\n${summary}` : null,
   ].filter(Boolean).join('\n');
   const patchBody = {
     ...(mapped.status ? { status: mapped.status } : {}),
@@ -197,7 +197,7 @@ async function updateFireberry(recordId, data) {
     });
     const responseText = await res.text();
     if (!res.ok) { console.error(`[fireberry] Update failed (${res.status}):`, responseText); console.error('[fireberry] Tried to PATCH:', JSON.stringify(patchBody)); }
-    else { console.log(`[fireberry] Updated record ${recordId} → ${mapped.status || 'note added'}`); }
+    else { console.log(`[fireberry] Updated record ${recordId} â ${mapped.status || 'note added'}`); }
   } catch(err) { console.error('[fireberry] Update error:', err.message); }
 }
 
@@ -212,7 +212,7 @@ function toE164(phone) {
 }
 
 function normalizeLead(raw, recordId) {
-  const fields = raw.data || raw.record || raw.fields || raw;
+  const fields = (raw.data && raw.data.Record) || raw.data || raw.record || raw.fields || raw;
   return {
     recordId: recordId || fields.accountid || '',
     name: fields.accountname || '',
@@ -234,27 +234,27 @@ function buildAssistantOverrides({ name, campaign, status, statusDetail, city, s
   const firstName = (name || '').trim().split(/\s+/)[0] || '';
   const isBDO = (campaign || company || '').toLowerCase().includes('bdo');
   const isFullStack = (campaign || '').toLowerCase().includes('full stack') || (campaign || '').toLowerCase().includes('fullstack');
-  const isQA = (campaign || '').toLowerCase().includes('qa') || (campaign || '').toLowerCase().includes('בדיקות');
+  const isQA = (campaign || '').toLowerCase().includes('qa') || (campaign || '').toLowerCase().includes('××××§××ª');
   let courseHint = '';
-  if (isBDO) courseHint = 'הליד הגיע מקמפיין BDO – ייתכן רקע בראיית חשבון/כספים.';
-  else if (isQA) courseHint = 'הליד הגיע מקמפיין QA – כוון לקורס QA Automation.';
-  else if (isFullStack) courseHint = 'הליד הגיע מקמפיין Full Stack – כוון לקורס Full Stack.';
+  if (isBDO) courseHint = '×××× ××××¢ ××§××¤××× BDO â ×××ª×× ×¨×§×¢ ××¨××××ª ××©×××/××¡×¤××.';
+  else if (isQA) courseHint = '×××× ××××¢ ××§××¤××× QA â ×××× ××§××¨×¡ QA Automation.';
+  else if (isFullStack) courseHint = '×××× ××××¢ ××§××¤××× Full Stack â ×××× ××§××¨×¡ Full Stack.';
   const contextBlock = [
-    '═══ מידע על הליד (הוזן אוטומטית לפני השיחה) ═══',
-    `שם מלא: ${name || 'לא ידוע'}`,
-    `שם פרטי: ${firstName || 'לא ידוע'}`,
-    `עיר: ${city || 'לא ידוע'}`,
-    `קמפיין: ${campaign || 'לא ידוע'}`,
-    `Ad Set: ${adset || 'לא ידוע'}`,
-    `מקור: ${source || 'לא ידוע'}`,
-    `סטטוס CRM: ${status || 'חדש'}`,
-    statusDetail ? `פירוט: ${statusDetail}` : null,
-    whatsappUrl ? `WhatsApp: ${whatsappUrl} (שלח לאחר גיבוש עניין)` : null,
-    courseHint ? `רמז: ${courseHint}` : null,
-    '═══════════════════════════════════════════════',
+    'âââ ××××¢ ×¢× ×××× (×××× ××××××××ª ××¤× × ××©×××) âââ',
+    `×©× ×××: ${name || '×× ××××¢'}`,
+    `×©× ×¤×¨××: ${firstName || '×× ××××¢'}`,
+    `×¢××¨: ${city || '×× ××××¢'}`,
+    `×§××¤×××: ${campaign || '×× ××××¢'}`,
+    `Ad Set: ${adset || '×× ××××¢'}`,
+    `××§××¨: ${source || '×× ××××¢'}`,
+    `×¡××××¡ CRM: ${status || '×××©'}`,
+    statusDetail ? `×¤××¨××: ${statusDetail}` : null,
+    whatsappUrl ? `WhatsApp: ${whatsappUrl} (×©×× ××××¨ ×××××© ×¢× ×××)` : null,
+    courseHint ? `×¨××: ${courseHint}` : null,
+    'âââââââââââââââââââââââââââââââââââââââââââââââ',
   ].filter(Boolean).join('\n');
   return {
-    firstMessage: firstName ? `ألو، معي ${firstName}؟` : 'ألو، مين معي؟',
+    firstMessage: firstName ? `Ø£ÙÙØ ÙØ¹Ù ${firstName}Ø` : 'Ø£ÙÙØ ÙÙÙ ÙØ¹ÙØ',
     model: { messages: [{ role: 'system', content: contextBlock }] }
   };
 }
