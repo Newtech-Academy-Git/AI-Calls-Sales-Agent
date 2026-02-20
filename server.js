@@ -1,4 +1,3 @@
-
 /**
  * NewTech Academy – AI Sales Call Backend
  * ==========================================
@@ -535,17 +534,22 @@ function buildAssistantOverrides({ name, campaign, status, statusDetail, city, s
       ? `ألو، معي ${firstName}؟`
       : 'ألو، مين معي؟',
 
-    // Prepend lead context to the system prompt so the AI is always aware
-    // IMPORTANT: Vapi requires provider + model when overriding the model object
-    model: {
-      provider: 'anthropic',
-      model:    'claude-sonnet-4-5-20250929',
-      messages: [
-        {
-          role:    'system',
-          content: contextBlock
-        }
-      ]
+    // Pass lead context as metadata so the Vapi system prompt stays intact.
+    // The full system prompt (Sami's persona, call flow, etc.) lives in Vapi dashboard.
+    // DO NOT override model.messages – that replaces the entire system prompt!
+    metadata: {
+      leadName:      name      || '',
+      firstName:     firstName || '',
+      campaign:      campaign  || '',
+      city:          city      || '',
+      source:        source    || '',
+      status:        status    || '',
+      statusDetail:  statusDetail || '',
+      adset:         adset     || '',
+      company:       company   || '',
+      whatsappUrl:   whatsappUrl || '',
+      courseHint:    courseHint || '',
+      contextBlock:  contextBlock
     }
   };
 }
